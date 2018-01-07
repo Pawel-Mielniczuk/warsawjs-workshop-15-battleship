@@ -79,11 +79,13 @@ class CellModel {
 
   fire() {
     //Guard clause Do not 
-    if(this._fireAt) {
+    if(this._firedAt) {
       return undefined;
     }
     this._firedAt = true;
+    console.log("dziala")
     return (this._hasShip ? "hit" : "miss");
+
   }
 }
 
@@ -92,15 +94,48 @@ class BoardModel {
     this._cells = {}
     for(let i = 0; i < size; i+=1) {
       for(let j = 0; j < size; j+=1) {
-        this._cells[`${i}x${j}`] = new CellModel({hasShip: true});
+        let hasShip;
+        if(Math.random() < 0.2) {
+          hasShip = true;
+        } else {
+          hasShip = false;
+        }
+        this._cells[`${i}x${j}`] = new CellModel({hasShip: hasShip});
       }
     }
+    //Inicialize an empty observer map;
+    this._observers = {}
+
   }
+
   fireAt(location) {
     const target = this._cells[`${location.row}x${location.column}`];
     const firingResult = target.fire();
+    if(firingResult) {
+      this._notifyObservers('firedAt', {location, firingResult});
+    }
+    
   }
-}
+
+  _notifyObservers(type, data) {
+    //run all saved observers for given type.
+     (this._observers[type] || []).forEach(function(observer){
+      observer(data);
+     });
+
+    }
+
+    addObserver(type, observerFunction) {
+      //save the observer function for running later.
+      if(!this._observers[type]) {
+        this._observers[type] = [];
+      }
+      this._observers[type].push(observerFunction);
+    }
+  }
+
+  
+
 
 let myController;
 function handleCellClick(...args) {
@@ -109,6 +144,9 @@ function handleCellClick(...args) {
 const boardView  = new BoardComponent({handleCellClick})
 const boardModel = new BoardModel();
 myController = new GameController(boardModel);
+boardModel.addObserver("firedAt", function({ location, firingResult }){
+  boardView.setCellState(location, firingResult);
+});
 
 const boardContainer = document.getElementById("boardContainer");
 boardContainer.appendChild(boardView.getElement());
