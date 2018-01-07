@@ -9,13 +9,13 @@ class Component {
 }
 
 class cellComponent extends Component {
-  constructor() {
+  constructor(handleCellClick) {
     super();
     this._state = "unknown";
     this._element = document.createElement("td");
     this._element.addEventListener("click",(function(){
-      this.setState("miss");
-    }).bind(this));
+        handleCellClick();
+    }));
     this._refresh();
   }
 
@@ -30,5 +30,20 @@ _refresh() {
 }
 }
 
-const myCell = new cellComponent();
+class GameController {
+  constructor(cell) {
+    this._cell = cell;
+  }
+  handleCellClick() {
+    this._cell.setState("miss");
+  }
+}
+
+let myController;
+function handleCellClick() {
+  myController.handleCellClick();
+}
+
+const myCell = new cellComponent(handleCellClick);
+myController = new GameController(myCell);
 document.getElementById("cellContainer").appendChild(myCell.getElement());
