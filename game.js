@@ -9,7 +9,7 @@ class Component {
 }
 
 class cellComponent extends Component {
-  constructor({location,handleCellClick}) {
+  constructor({location, handleCellClick}) {
     super();
     this._state = "unknown";
     this._element = document.createElement("td");
@@ -61,11 +61,44 @@ class BoardComponent extends Component {
 }
 
 class GameController {
-  constructor(board) {
-    this._board = board;
+  constructor(model) {
+    this._model = model;
   }
   handleCellClick({ location }) {
-    this._board.setCellState(location, "miss")
+    this._model.fireAt(location);
+  }
+}
+
+//## Models
+
+class CellModel {
+  constructor({ hasShip }) {
+    this._hasShip = hasShip;
+    this._firedAt = false;
+  }
+
+  fire() {
+    //Guard clause Do not 
+    if(this._fireAt) {
+      return undefined;
+    }
+    this._firedAt = true;
+    return (this._hasShip ? "hit" : "miss");
+  }
+}
+
+class BoardModel {
+  constructor( { size = 8} = {} ) {
+    this._cells = {}
+    for(let i = 0; i < size; i+=1) {
+      for(let j = 0; j < size; j+=1) {
+        this._cells[`${i}x${j}`] = new CellModel({hasShip: true});
+      }
+    }
+  }
+  fireAt(location) {
+    const target = this._cells[`${location.row}x${location.column}`];
+    const firingResult = target.fire();
   }
 }
 
@@ -73,9 +106,9 @@ let myController;
 function handleCellClick(...args) {
   myController.handleCellClick.apply(myController, args);
 }
-const board  = new BoardComponent({handleCellClick})
-
-myController = new GameController(board);
+const boardView  = new BoardComponent({handleCellClick})
+const boardModel = new BoardModel();
+myController = new GameController(boardModel);
 
 const boardContainer = document.getElementById("boardContainer");
-boardContainer.appendChild(board.getElement());
+boardContainer.appendChild(boardView.getElement());
