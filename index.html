@@ -5,10 +5,33 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Statki!</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    td {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      background: grey;
+    }
+
+    td.cell_unknown {
+      background: blue;
+    }
+
+    td.cell_miss {
+      background: red;
+    }
+
+    
+  
+  </style>
 </head>
 <body>
   <main id="game">
-    
+    <table id="board">
+      <tr id="cellContainer">
+      
+      </tr>
+    </table>
   </main>
   <script src="game.js"></script>
 </body>
